@@ -1,3 +1,7 @@
+
+
+
+
 package db;
 
 import java.sql.Connection;
@@ -10,12 +14,47 @@ import java.util.List;
 
 public class TopicDAO {
 	private JdbcTemplate jdbcTemplate;
-	private int numberOfTopic=0;
+	private int numberOfTopic;
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	
 	public TopicDAO() {
 		jdbcTemplate = JdbcTemplate.getInstance();
+		this.numberOfTopic=setNumberOfTopic();
+	}
+	
+	/* numberOfTopic 초기화 */
+	private int setNumberOfTopic() {
+		String sql="SELECT COUNT(*) FROM TOPIC";
+		ResultSet rs;
+		int re=1;
+		try {
+			conn = jdbcTemplate.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs=pstmt.executeQuery(); 
+			while(rs.next()) {
+				re = rs.getInt(1);
+			}
+			return re;
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return re;
 	}
 	
 	/*주제 목록 보기*/

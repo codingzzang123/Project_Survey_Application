@@ -120,4 +120,66 @@ public class ItemDAO {
 		}
 		return temp;
 	}
+	
+	public void choice(int num,int fk) {
+		String sql="UPDATE ITEM SET \"COUNT\"=COUNT+1 WHERE \"TOPIC_NUM\"=? AND \"OPTION\"=?";
+		
+		try {
+			conn = jdbcTemplate.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, fk);
+			pstmt.setInt(2, num);
+			pstmt.executeQuery();
+				
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		
+		}
+	}
+	
+	public void choiceOther(int topicNum, String item, int option) {
+		String sql = "INSERT INTO ITEM VALUES(\"S_ITEM\".NEXTVAL, ? , ? , 1, ?)";
+	
+		try {
+			conn = jdbcTemplate.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, topicNum);
+			pstmt.setString(2, item); 
+			pstmt.setInt(3, option);
+			pstmt.executeQuery(); 
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
