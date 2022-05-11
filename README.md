@@ -14,5 +14,7 @@
 
 ## ***3️⃣Version 1.00***  
 [Notion]<https://narrow-tarsal-f76.notion.site/Version-1-0-1f22c85964904b41bd9160975be489ab>  
+## ***4️⃣Version 1.50***  
+[Notion]<https://narrow-tarsal-f76.notion.site/Version-1-50-505bffb489304056a83a4c27a4bfc24d> 
 
 
