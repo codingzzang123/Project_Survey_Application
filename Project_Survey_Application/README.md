@@ -1,4 +1,4 @@
-![header](https://capsule-render.vercel.app/api?type=Cylinder&color=fef5d4&height=300&section=header&text=Version1.50&fontSize=50&fontColor=4cde77&animation=twinkling)  
+![header](https://capsule-render.vercel.app/api?type=Cylinder&color=fef5d4&height=300&section=header&text=Version%202.00&fontSize=50&fontColor=4cde77&animation=twinkling)  
 ### Version 2.00 Update 2022.05.12 💬 </br>
 
 ## 💻 Language used in the project
