@@ -1,7 +1,3 @@
-
-
-
-
 package Database;
 
 import java.sql.Connection;
@@ -10,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class TopicDAO {
 	private JdbcTemplate jdbcTemplate;
@@ -26,35 +21,23 @@ public class TopicDAO {
 	/* numberOfTopic 초기화 */
 	private int setNumberOfTopic() {
 		String sql="SELECT COUNT(*) FROM TOPIC";
-		ResultSet rs;
-		int re=1;
+		ResultSet rs=null;
+		int result=1;
 		try {
 			conn = jdbcTemplate.getConnection();
 			pstmt = conn.prepareStatement(sql);
 			rs=pstmt.executeQuery(); 
 			while(rs.next()) {
-				re = rs.getInt(1);
+				result = rs.getInt(1);
 			}
-			return re;
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
+			jdbcTemplate.close(rs);
 		}
-		return re;
+		return result;
 	}
 	
 	/*주제 목록 보기*/
@@ -77,25 +60,14 @@ public class TopicDAO {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
+			jdbcTemplate.close(rs);
 		}
 		return (ls.size() == 0) ? null : ls;
 	}
 	
-	/*주제 만들기*/
+	/* 주제 만들기 (create) */
 	public boolean createTopic(String topic) {
 		String sql = "INSERT INTO TOPIC VALUES(\"S_TOPIC\".NEXTVAL,?)";
 		try {
@@ -108,20 +80,8 @@ public class TopicDAO {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
 		}
 		return false;
 	}
@@ -142,69 +102,43 @@ public class TopicDAO {
 	}
 	public void initialization() {
 		String[] sql=initSql();
-		
 		try {
 			conn = jdbcTemplate.getConnection();
 			for(int i=0; i<sql.length; i++) {
 				pstmt = conn.prepareStatement(sql[i]);
 				pstmt.executeQuery(); 
-				this.numberOfTopic=0;
-			}
+			}	
+			this.numberOfTopic=0;
 			System.out.println("초기화 완료!\n");
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
 		}
 	}
 
 	/*토픽 제목 가져오기 */
 	public String selectTopic(int option) {
-		ResultSet rs = null;
-		String sql = "SELECT \"TOPIC\" FROM TOPIC WHERE \"NUM\"=?";
-		String result = "";
-		try {
-			conn = jdbcTemplate.getConnection();
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, option);
-			rs = pstmt.executeQuery(); //쿼리 전송!
-			
-			while(rs.next()) {
-				result = rs.getString(1);
-			}
-		} catch(SQLException e) {
-			e.printStackTrace();
-		} finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+		List<TopicVO> ls = selectAll();
+		for(TopicVO tv : ls) {
+			if(option == tv.getNum())
+				return tv.getTopic();
 		}
-		return result;
+		return "";
 	}
 
+	/* 중복값 검사 */
+	public boolean checkTopic(String topic) {
+		List<TopicVO> ls = selectAll();
+		if(ls==null)
+			return false;
+		for(TopicVO tv : ls) {
+			if(tv.getTopic().equals(topic)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 

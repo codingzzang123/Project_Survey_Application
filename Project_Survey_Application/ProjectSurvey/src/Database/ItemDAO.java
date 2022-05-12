@@ -6,16 +6,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-
 public class ItemDAO {
 	private JdbcTemplate jdbcTemplate;
+	private int addOption;
 	Connection conn = null;
 	PreparedStatement pstmt = null;
 	
 	public ItemDAO() {
 		jdbcTemplate = JdbcTemplate.getInstance();
 	}
-	/*목록보기*/
+	
+	/* 목록보기*/
 	public ArrayList<Object[]> selectItem(int option) {
 		ArrayList<Object[]> tmp = new ArrayList<>();
 		ResultSet rs = null;
@@ -33,28 +34,18 @@ public class ItemDAO {
 				tmp2[1] = rs.getInt(2);
 				tmp.add(tmp2);
 			}
+			this.addOption = tmp.size();
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
+			jdbcTemplate.close(rs);
 		}
 		return tmp.size()==0? null:tmp;
 	}
 	
-	/*주제에 대한 항목 생성*/
+	/* 주제에 대한 항목 생성 (insert) */
 	public void createOption(int nums, String option ,int options,int count) {
 		String sql = "INSERT INTO ITEM(\"NUM\",\"TOPIC_NUM\",\"ITEMS\",\"OPTION\",\"COUNT\") "
 				+ "VALUES (\"S_ITEM\".NEXTVAL,?,?,?,?)";
@@ -69,60 +60,18 @@ public class ItemDAO {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
 		}
 	}
 
-	/*항목 수 반환*/
-	public int countOption(int topicNum) {
-		String sql = "SELECT COUNT(\"TOPIC_NUM\") FROM ITEM WHERE \"TOPIC_NUM\"=?";
-		ResultSet rs = null;
-		int temp=-1;
-		try {
-			conn = jdbcTemplate.getConnection();
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, topicNum);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				temp = rs.getInt(1);
-			}
-			return temp;
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return temp;
+	/* 주제 갯수 반환 */
+	public int getAddOption() {
+		return this.addOption;
 	}
+
 	
-	/* "선택" 값 +1 증가 */
+	/* "선택" 값 +1 증가(update) */
 	public void choice(int num,int fk) {
 		String sql="UPDATE ITEM SET \"COUNT\"=COUNT+1 WHERE \"TOPIC_NUM\"=? AND \"OPTION\"=?";
 		
@@ -136,25 +85,12 @@ public class ItemDAO {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
 		}
 	}
 	
-	/* "기타" 선택시 항목 추가 */
+	/* "기타" 선택시 항목 추가(insert) */
 	public void choiceOther(int topicNum, String item, int option) {
 		String sql = "INSERT INTO ITEM VALUES(\"S_ITEM\".NEXTVAL, ? , ? , 1, ?)";
 	
@@ -169,20 +105,32 @@ public class ItemDAO {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}finally {
-			if(pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			if(conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+			jdbcTemplate.close(pstmt);
+			jdbcTemplate.close(conn);
+		}
+	}
+
+	/* 주제에 대한 항목수 합계 반환 */
+	public int totalcount(int num) {
+		ArrayList<Object[]> tmp = selectItem(num);
+		
+		int sum=0;
+		for(Object[] o : tmp) 
+			sum+=(Integer)o[1];
+		
+		return sum;
+	}
+	
+	/* 중복값 체크 */
+	public boolean checkOption(String option, int input) {
+		ArrayList<Object[]> ls = selectItem(input);
+		if(ls==null)
+			return false;
+		for(Object[] tv : ls) {
+			if(tv[0].equals(option)) {
+				return true;
 			}
 		}
+		return false;
 	}
 }

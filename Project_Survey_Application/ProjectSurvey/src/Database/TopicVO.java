@@ -24,8 +24,9 @@ public class TopicVO {
 	}
 	@Override
 	public String toString() {
-		return num + ".\t" + topic;
+		return num + " \t" + topic;
 	}
+	
 	
 	
 }
